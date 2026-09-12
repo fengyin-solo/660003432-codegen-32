@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { COGNATE_SETS, LANGUAGE_FAMILIES, buildGraph } from '../mock/data'
-export { LANGUAGE_FAMILIES, COGNATE_SETS }
+import { COGNATE_SETS, LANGUAGE_FAMILIES, DISPUTED_ROOTS, buildGraph } from '../mock/data'
+export { LANGUAGE_FAMILIES, COGNATE_SETS, DISPUTED_ROOTS }
 
 export const useEtymologyStore = defineStore('etymology', () => {
   const graph = ref(buildGraph())

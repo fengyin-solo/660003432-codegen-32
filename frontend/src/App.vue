@@ -80,6 +80,36 @@
           </table>
         </div>
       </div>
+      <div class="bg-slate-800 rounded-lg p-4 border border-slate-700">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-sm font-bold text-slate-400">争议词源标注区</h3>
+          <span class="text-xs text-slate-500">收录 {{ DISPUTED_ROOTS.length }} 个存在多种解释的词根 · 展示各派观点分歧点</span>
+        </div>
+        <div class="grid lg:grid-cols-2 gap-4">
+          <div v-for="d in DISPUTED_ROOTS" :key="d.id" class="bg-slate-900 rounded-lg p-4 border border-slate-700">
+            <div class="flex items-center gap-2 flex-wrap mb-1">
+              <span class="font-mono font-bold text-cyan-400">{{ d.root }}</span>
+              <span class="text-xs text-slate-400">{{ d.meaning }}</span>
+              <span class="text-xs text-slate-500">{{ familyName(d.family) }}</span>
+              <span class="ml-auto text-xs px-2 py-0.5 rounded-full" :class="statusClass(d.status)">{{ d.status }}</span>
+            </div>
+            <p class="text-xs text-slate-400 mb-3">{{ d.summary }}</p>
+            <div class="space-y-2">
+              <div v-for="(v, i) in d.viewpoints" :key="i" class="bg-slate-800 rounded p-2.5">
+                <div class="flex items-center gap-2 flex-wrap text-xs">
+                  <span class="font-bold text-amber-400">观点{{ 'ABC'[i] }} · {{ v.theory }}</span>
+                  <span class="text-slate-500">{{ v.proposedBy }}</span>
+                </div>
+                <p class="text-xs text-slate-300 mt-1">{{ v.claim }}</p>
+                <div class="flex flex-wrap gap-1 mt-1.5">
+                  <span v-for="(e, j) in v.evidence" :key="j" class="text-[10px] bg-slate-700 text-slate-300 rounded px-1.5 py-0.5">{{ e }}</span>
+                </div>
+                <div class="mt-1.5 text-xs border-l-2 border-amber-500 pl-2 text-amber-200/80">分歧点：{{ v.divergence }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -87,11 +117,18 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import * as d3 from 'd3'
-import { useEtymologyStore, LANGUAGE_FAMILIES } from './store/etymology'
+import { useEtymologyStore, LANGUAGE_FAMILIES, DISPUTED_ROOTS } from './store/etymology'
 
 const store = useEtymologyStore()
 const svgRef = ref<SVGSVGElement | null>(null)
 const COLORS: Record<string, string> = { ie: '#3b82f6', st: '#22c55e', aa: '#f59e0b', ural: '#8b5cf6' }
+
+const familyName = (id: string) => LANGUAGE_FAMILIES.find(f => f.id === id)?.name || id
+const statusClass = (s: string) => ({
+  '争议中': 'bg-red-900/60 text-red-300',
+  '部分共识': 'bg-amber-900/60 text-amber-300',
+  '主流接受': 'bg-green-900/60 text-green-300',
+}[s] || 'bg-slate-700 text-slate-300')
 
 function drawGraph() {
   if (!svgRef.value) return
